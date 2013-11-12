@@ -5,12 +5,14 @@
  
 import socket
 import sys
+from messages import MessageParser
 
 class MessageServer():
 
     def __init__(self):
         self.HOST = ''   # Symbolic name meaning all available interfaces
         self.PORT = 7777 # Arbitrary non-privileged port
+        self.parser = MessageParser()
  
     def open_udp_socket(self):
         # Datagram (udp) socket
@@ -47,6 +49,9 @@ class MessageServer():
                 print 'quitting...'
                 break
          
+            test = self.parser.decode(data)
+            print test
+
             reply = 'OK...' + data
          
             self.s.sendto(reply , addr)

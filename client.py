@@ -5,12 +5,14 @@
  
 import socket   #for sockets
 import sys  #for exit
+from messages import MessageParser
 
 class MessageClient():
     
     def __init__(self):
         self.host = 'localhost';
         self.port = 7777;
+        self.parser = MessageParser()
  
     def create_udp_socket(self):
         # create dgram udp socket
@@ -22,13 +24,14 @@ class MessageClient():
  
     def send_messages(self):
         while(1) :
-            msg = raw_input('Enter message to send : ')
-        
+            payload = raw_input('Enter message to send : ')
+            msg = self.parser.encode("001","GET","255.255.255.255","255.255.255.255",payload)
             try :
                 #Set the whole string
                 self.s.sendto(msg, (self.host, self.port))
              
-                if msg == 'quit()':
+                if payload == 'quit()':
+                    self.s.sendto(payload, (self.host, self.port))
                     print 'quitting...'
                     break
 
