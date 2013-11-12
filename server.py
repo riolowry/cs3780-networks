@@ -51,6 +51,10 @@ class MessageServer():
          
             self.s.sendto(reply , addr)
             print 'Message[' + addr[0] + ':' + str(addr[1]) + '] - ' + data.strip()
+            self.parse_message(data)
+
+    def parse_message(self, message):
+        print "TODO ... The data is: " + message
      
     def close_socket(self):
         self.s.close()
