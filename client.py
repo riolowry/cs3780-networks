@@ -25,7 +25,7 @@ class MessageClient():
     def send_messages(self):
         while(1) :
             payload = raw_input('Enter message to send : ')
-            msg = self.parser.encode("001","GET","255.255.255.255","255.255.255.255",payload)
+            msg = self.parser.encode("001","GET","192.183.25.1","255.255.255.255",payload)
             try :
                 #Set the whole string
                 self.s.sendto(msg, (self.host, self.port))
@@ -39,8 +39,12 @@ class MessageClient():
                 d = self.s.recvfrom(1024)
                 reply = d[0]
                 addr = d[1]
-         
+
+                #get the payload
+                response = self.parser.decode(reply)
+
                 print 'Server reply : ' + reply
+                print 'Response: ' + response["Payload"]
             
      
             except socket.error, msg:

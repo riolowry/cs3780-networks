@@ -49,12 +49,14 @@ class MessageServer():
                 print 'quitting...'
                 break
          
-            test = self.parser.decode(data)
-            print test
+            test_data = self.parser.decode(data)
+            print test_data
+            print 'Payload: "'+test_data["Payload"]+'"'
 
-            reply = 'OK...' + data
+            reply = 'OK...' + test_data["Payload"]
+            encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
          
-            self.s.sendto(reply , addr)
+            self.s.sendto(encoded_reply , addr)
             print 'Message[' + addr[0] + ':' + str(addr[1]) + '] - ' + data.strip()
             self.parse_message(data)
 

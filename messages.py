@@ -3,15 +3,36 @@
     Rio Lowry 
 '''
 
+import re
+
 class MessageParser():
 
     def decode(self, data):
+        #validate data
+        check = r'\d+(GET|SEND|ACK)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'
+        valid = re.match(check, data)
         message = {}
-        message["Seq_No"] = data[:3]
-        message["Type"] = data[3:6]
-        message["Source"] = data[6:22]
-        message["Destination"] = data[22:32]
-        message["Payload"] = data[32:]
+        
+        if not valid:
+            message["Seq_No"] =  "xxx"
+            message["Type"] =  None
+            message["Source"] = 0 
+            message["Destination"] = 0
+            message["Payload"] = "Bad Message!"
+            return message
+
+        #use re to parser the data
+        seq = re.match(r'\d+',data)
+        m_type = re.search(r'(GET|SEND|ACK)',data)
+        addr = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',data)
+        payl = data.find(addr[1])+len(addr[1])
+        
+        message["Seq_No"] =  seq.group()
+        message["Type"] =  m_type.group()
+        message["Source"] = addr[0] 
+        message["Destination"] = addr[1]
+        message["Payload"] = data[payl:]
+        #print message
         return message
 
     def encode(self, sequence_no, message_type, source, destination, payload):
@@ -19,6 +40,7 @@ class MessageParser():
         data.append(sequence_no)
         data.append(message_type)
         data.append(source)
+        data.append('#')
         data.append(destination)
         data.append(payload)
         message = ''.join(data)
