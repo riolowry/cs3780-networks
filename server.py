@@ -6,6 +6,7 @@
 import socket
 import sys
 from messages import MessageParser
+from storage import MessageStorage
 
 class MessageServer():
 
@@ -13,6 +14,7 @@ class MessageServer():
         self.HOST = ''   # Symbolic name meaning all available interfaces
         self.PORT = 7777 # Arbitrary non-privileged port
         self.parser = MessageParser()
+        self.storage = MessageStorage()
  
     def open_udp_socket(self):
         # Datagram (udp) socket
@@ -50,6 +52,7 @@ class MessageServer():
                 break
          
             test_data = self.parser.decode(data)
+            self.storage.add_message(test_data)
             print test_data
             print 'Payload: "'+test_data["Payload"]+'"'
 
