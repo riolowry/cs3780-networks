@@ -1,16 +1,19 @@
 import json
+import heapq
 
 class MessageStorage():
 
     def __init__(self):
         self.messages = self.read_from_file()
+        for messagelist in self.messages.values():
+            heapq.heapify(messagelist)
 
     def add_message(self, message):
         # Add a message with its destination as key
         destination = message["Destination"]
         if destination not in self.messages:
             self.messages[destination] = []
-        self.messages[destination].append(message)
+        heapq.heappush(self.messages[destination], [message["Seq_No"], message])
 
         self.write_to_file()
 
