@@ -37,11 +37,44 @@ class MessageParser():
 
     def encode(self, sequence_no, message_type, source, destination, payload):
         data = []
-        data.append(sequence_no)
-        data.append(message_type)
-        data.append(source)
+        data.append(str(sequence_no))
+        data.append(str(message_type))
+        data.append(str(source))
         data.append('#')
-        data.append(destination)
-        data.append(payload)
+        data.append(str(destination))
+        data.append(str(payload))
         message = ''.join(data)
         return message
+
+class DestinationPicker():
+
+    def __init__(self):
+        self.test_avail_clients = []
+        client1 = {}
+        client1["user_name"] = "Bob"
+        client1["ip"] = "128.555.2.1"
+        client2 = {}
+        client2["user_name"] = "Sally"
+        client2["ip"] = "196.28.56.140"
+        self.test_avail_clients.append(client1)
+        self.test_avail_clients.append(client2)
+        
+
+    def pick_destination(self, available_clients):
+        print "The available hosts are: "
+        for host in available_clients:
+            print "User:" +host["user_name"] +" IP: " +host["ip"]
+        destination = raw_input ('Please type a username to send to: ')
+        for host in available_clients:
+            if host["user_name"] == destination:
+                return host["ip"]
+        return "0.0.0.0"
+
+def main():
+    test = DestinationPicker()
+    clients = test.test_avail_clients
+    destination = test.pick_destination(clients)
+    print destination
+
+if __name__ == "__main__":
+    main()
