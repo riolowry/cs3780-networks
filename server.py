@@ -40,6 +40,8 @@ class MessageServer():
     def listen(self):
         #now keep talking with the client
         while 1:
+            print "ENTERING"
+
             # receive data from client (data, addr)
             d = self.s.recvfrom(1024)
             data = d[0]
@@ -57,6 +59,7 @@ class MessageServer():
             print test_data
             print 'Payload: "'+test_data["Payload"]+'"'
 
+            # When message is a login message, update list of clients appropriately
             if test_data["Type"] == "LOGIN":
                 username = test_data["Payload"]
                 ip = test_data["Source"]
@@ -65,19 +68,18 @@ class MessageServer():
                     self.clients.add_client(username,ip)
                 elif username in self.clients.clients and self.clients.clients[username] == ip:
                     reply = "Login successful. Welcome back %s. Your IP is %s" % (username,ip)
-                    self.clients.add_client(username,ip)
                 else:
-                    reply = "Login unsuccessful. %s has already been taken." % (username,)
+                    reply = "Login failed. %s has already been taken." % (username,)
+                    print reply
                 encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
                 self.s.sendto(encoded_reply, addr)
-                pass
+                continue
 
                 print self.clients.clients
 
             reply = 'OK...' + test_data["Payload"]
             encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
 
-         
             self.s.sendto(encoded_reply , addr)
             print 'Message[' + addr[0] + ':' + str(addr[1]) + '] - ' + data.strip()
             self.parse_message(data)
