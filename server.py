@@ -6,7 +6,7 @@
 import socket
 import sys
 from messages import MessageParser
-from storage import MessageStorage
+from storage import MessageStorage, ClientList
 
 class MessageServer():
 
@@ -15,6 +15,7 @@ class MessageServer():
         self.PORT = 7777 # Arbitrary non-privileged port
         self.parser = MessageParser()
         self.storage = MessageStorage()
+        self.clients = ClientList()
  
     def open_udp_socket(self):
         # Datagram (udp) socket
@@ -56,8 +57,26 @@ class MessageServer():
             print test_data
             print 'Payload: "'+test_data["Payload"]+'"'
 
+            if test_data["Type"] == "LOGIN":
+                username = test_data["Payload"]
+                ip = test_data["Source"]
+                if username not in self.clients.clients:
+                    reply = "Login successful. Username %s with IP %s has been added to the list of clients. " % (username,ip)
+                    self.clients.add_client(username,ip)
+                elif username in self.clients.clients and self.clients.clients[username] == ip:
+                    reply = "Login successful. Welcome back %s. Your IP is %s" % (username,ip)
+                    self.clients.add_client(username,ip)
+                else:
+                    reply = "Login unsuccessful. %s has already been taken." % (username,)
+                encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
+                self.s.sendto(encoded_reply, addr)
+                pass
+
+                print self.clients.clients
+
             reply = 'OK...' + test_data["Payload"]
             encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
+
          
             self.s.sendto(encoded_reply , addr)
             print 'Message[' + addr[0] + ':' + str(addr[1]) + '] - ' + data.strip()

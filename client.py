@@ -51,9 +51,36 @@ class MessageClient():
                 print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
                 sys.exit()
 
+    def login(self):
+        while(1) :
+            username = raw_input('Enter your username: ')
+            testip = raw_input('Enter your ip (test): ')
+            msg = self.parser.encode("001","LOGIN",testip,"0.0.0.0",username)
+            try :
+                # Set the whole string
+                self.s.sendto(msg, (self.host, self.port))
+
+                # receive data from server (data, addr)
+                d = self.s.recvfrom(1024)
+                reply = d[0]
+                addr = d[1]
+
+                #get the payload
+                response = self.parser.decode(reply)
+
+                print 'Server reply : ' + reply
+                print 'Response: ' + response["Payload"]  
+     
+            except socket.error, msg:
+                print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+                sys.exit()
+
+            break
+
 def main():
     client = MessageClient()
     client.create_udp_socket()
+    client.login()
     client.send_messages()
 
 if __name__ == "__main__":

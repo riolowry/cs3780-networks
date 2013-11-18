@@ -9,7 +9,7 @@ class MessageParser():
 
     def decode(self, data):
         #validate data
-        check = r'\d+(GET|SEND|ACK)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'
+        check = r'\d+(GET|SEND|ACK|LOGIN)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'
         valid = re.match(check, data)
         message = {}
         
@@ -23,7 +23,7 @@ class MessageParser():
 
         #use re to parser the data
         seq = re.match(r'\d+',data)
-        m_type = re.search(r'(GET|SEND|ACK)',data)
+        m_type = re.search(r'(GET|SEND|ACK|LOGIN)',data)
         addr = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',data)
         payl = data.find(addr[1])+len(addr[1])
         
