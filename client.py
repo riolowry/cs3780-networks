@@ -6,6 +6,7 @@
 import socket   #for sockets
 import sys  #for exit
 from messages import MessageParser
+from storage import ClientList
 
 class MessageClient():
     
@@ -69,13 +70,14 @@ class MessageClient():
                 response = self.parser.decode(reply)
 
                 print 'Server reply : ' + reply
-                print 'Response: ' + response["Payload"]  
+                print 'Response: ' + response["Payload"]
+
+                if "successful" in response["Payload"]:
+                    break
      
             except socket.error, msg:
                 print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
                 sys.exit()
-
-            break
 
 def main():
     client = MessageClient()

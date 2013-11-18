@@ -40,7 +40,6 @@ class MessageServer():
     def listen(self):
         #now keep talking with the client
         while 1:
-            print "ENTERING"
 
             # receive data from client (data, addr)
             d = self.s.recvfrom(1024)
@@ -70,7 +69,6 @@ class MessageServer():
                     reply = "Login successful. Welcome back %s. Your IP is %s" % (username,ip)
                 else:
                     reply = "Login failed. %s has already been taken." % (username,)
-                    print reply
                 encoded_reply = self.parser.encode(test_data["Seq_No"], "ACK",test_data["Destination"], test_data["Source"], reply)
                 self.s.sendto(encoded_reply, addr)
                 continue
