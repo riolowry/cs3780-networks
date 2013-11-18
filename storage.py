@@ -38,4 +38,21 @@ class MessageStorage():
         except IOError, e:
             print "I/O error: %s" % e
             return {}
- 
+
+class ClientList():
+
+    def __init__(self):
+        self.clients = {}
+
+    def add_client(self, user_name, ip):
+        # Add a client to the dict
+        if user_name not in self.clients.keys():
+            self.clients[user_name] = ip
+            
+    def remove_client(self, user_name):
+        # Remove a client with same user_name and other user_names with same ip
+        ip = self.clients.get(user_name, "")
+        for user_name,ipaddr in self.clients.items():
+            if ipaddr == ip:
+                del self.clients[user_name]
+        
