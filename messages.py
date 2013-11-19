@@ -49,25 +49,20 @@ class MessageParser():
 class DestinationPicker():
 
     def __init__(self):
-        self.test_avail_clients = []
-        client1 = {}
-        client1["user_name"] = "Bob"
-        client1["ip"] = "128.555.2.1"
-        client2 = {}
-        client2["user_name"] = "Sally"
-        client2["ip"] = "196.28.56.140"
-        self.test_avail_clients.append(client1)
-        self.test_avail_clients.append(client2)
+        self.test_avail_clients = {}
+        user1 = "Bob"
+        self.test_avail_clients[user1] = "128.555.2.1"
+        user2 = "Sally"
+        self.test_avail_clients[user2] = "196.28.56.140"
         
-
     def pick_destination(self, available_clients):
         print "The available hosts are: "
-        for host in available_clients:
-            print "User:" +host["user_name"] +" IP: " +host["ip"]
+        for key, value in available_clients.iteritems() :
+            print "User:" + key +" IP: " + value
         destination = raw_input ('Please type a username to send to: ')
-        for host in available_clients:
-            if host["user_name"] == destination:
-                return host["ip"]
+        for key, value in available_clients.iteritems() :
+            if key == destination:
+                return value
         return "0.0.0.0"
 
 def main():
