@@ -5,8 +5,7 @@
  
 import socket   #for sockets
 import sys  #for exit
-from messages import MessageParser
-from storage import ClientList
+from messages import MessageParser, DestinationPicker
 
 class MessageClient():
     
@@ -14,6 +13,13 @@ class MessageClient():
         self.host = 'localhost';
         self.port = 7777;
         self.parser = MessageParser()
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(('8.8.8.8', 80))
+            self.ipaddr =  s.getsockname()[0]
+            s.close()
+        except socket.error:
+            self.ipaddr = socket.gethostbyname(socket.gethostname())
  
     def create_udp_socket(self):
         # create dgram udp socket
@@ -25,8 +31,11 @@ class MessageClient():
  
     def send_messages(self):
         while(1) :
+            client_list = DestinationPicker()
+            destination = client_list.pick_destination(client_list.test_avail_clients)
             payload = raw_input('Enter message to send : ')
-            msg = self.parser.encode("001","GET","192.183.25.1","255.255.255.255",payload)
+            source = self.ipaddr
+            msg = self.parser.encode("001","GET",source, destination, payload)
             try :
                 #Set the whole string
                 self.s.sendto(msg, (self.host, self.port))
