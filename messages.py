@@ -49,22 +49,64 @@ class MessageParser():
 class DestinationPicker():
 
     def __init__(self):
-        self.test_avail_clients = {}
-        user1 = "Bob"
-        self.test_avail_clients[user1] = "128.555.2.1"
-        user2 = "Sally"
-        self.test_avail_clients[user2] = "196.28.56.140"
+        self.test_avail_clients = []
+        client1 = {}
+        client1["user_name"] = "Bob"
+        client1["ip"] = "128.555.2.1"
+        client2 = {}
+        client2["user_name"] = "Sally"
+        client2["ip"] = "196.28.56.140"
+        self.test_avail_clients.append(client1)
+        self.test_avail_clients.append(client2)
         
+
     def pick_destination(self, available_clients):
         print "The available hosts are: "
-        for key, value in available_clients.iteritems() :
-            print "User:" + key +" IP: " + value
+        for host in available_clients:
+            print "User:" +host["user_name"] +" IP: " +host["ip"]
         destination = raw_input ('Please type a username to send to: ')
-        for key, value in available_clients.iteritems() :
-            if key == destination:
-                return value
+        for host in available_clients:
+            if host["user_name"] == destination:
+                return host["ip"]
         return "0.0.0.0"
 
+class ServerMessageHandler():
+
+    def __init__(self, message_parser):
+        self.message_parser = message_parser
+
+    def bind_server(self, server):
+        # Bind self to a specific server object
+        self.server = server
+
+    def handle_message(self, message):
+        # Decode and handle message return the reply string and its destination address
+        parsed_message = self.message_parser.decode(message[0])   
+        
+        if parsed_message["Type"] == "LOGIN":
+            # Handle LOGIN messages
+            client_list = self.server.client_list
+            username = parsed_message["Payload"]
+            ip = parsed_message["Source"]
+            if username not in client_list.clients:
+                reply = "Login successful. Username %s with IP %s has been added to the list of clients. " % (username,ip)
+                client_list.add_client(username,ip)
+            elif username in client_list.clients and client_list.clients[username] == ip:
+                reply = "Login successful. Welcome back %s. Your IP is %s" % (username,ip)
+            else:
+                reply = "Login failed. %s has already been taken." % (username,)
+            encoded_reply = self.message_parser.encode(parsed_message["Seq_No"], "ACK", parsed_message["Source"], parsed_message["Destination"], reply)
+            return encoded_reply, message[1]
+
+        elif parsed_message["Type"] == "SEND":
+            # Handle SEND messages
+            self.server.message_storage.add_message(parsed_message)
+            reply = "Message successfully received and stored by the server."
+            encoded_reply = self.message_parser.encode(parsed_message["Seq_No"], "ACK", parsed_message["Source"], parsed_message["Destination"], reply)
+            return encoded_reply, message[1]
+        else:
+            return "",""
+            
 def main():
     test = DestinationPicker()
     clients = test.test_avail_clients

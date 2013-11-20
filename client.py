@@ -35,7 +35,7 @@ class MessageClient():
             destination = client_list.pick_destination(client_list.test_avail_clients)
             payload = raw_input('Enter message to send : ')
             source = self.ipaddr
-            msg = self.parser.encode("001","GET",source, destination, payload)
+            msg = self.parser.encode("001","SEND",source, destination, payload)
             try :
                 #Set the whole string
                 self.s.sendto(msg, (self.host, self.port))
