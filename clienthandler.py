@@ -16,6 +16,8 @@ def get_ip(data):
         return "142.66.140.125"
     if data == "r2d2":
         return "142.66.140.124"
+    if data == "quigon":
+        return "142.66.140.123"
     return data
 
 class ClientHandler():
