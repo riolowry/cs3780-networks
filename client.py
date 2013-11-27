@@ -91,7 +91,7 @@ class MessageClient():
             ack_list, resend_list = self.handler.parse(message_list)
 
             for msg in ack_list:
-                seq = msg["Seq_No"]
+                '''seq = msg["Seq_No"]
                 mtype = msg["Type"]
                 source = msg["Source"]
                 dest = msg["Destination"]
@@ -100,9 +100,9 @@ class MessageClient():
                         mtype,
                         source,
                         dest,
-                        payl)
+                        payl)'''
                 try:
-                    self.s.sendto(send_msg, (self.server, self.port))
+                    self.s.sendto(msg, (self.server, self.port))
                 except:
                     continue
 
