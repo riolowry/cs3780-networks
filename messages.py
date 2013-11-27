@@ -9,7 +9,7 @@ class MessageParser():
 
     def decode(self, data):
         #validate data
-        check = r'\d+(GET|SEND|ACK|EOM)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'
+        check = r'\d+(GET|SEND|ACK|EOM|LOGIN|REJ)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*'
         valid = re.match(check, data)
         message = {}
         
@@ -23,7 +23,7 @@ class MessageParser():
 
         #use re to parser the data
         seq = re.match(r'\d+',data)
-        m_type = re.search(r'(GET|SEND|ACK|EOM)',data)
+        m_type = re.search(r'(GET|SEND|ACK|EOM|LOGIN|REJ)',data)
         addr = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',data)
         payl = data.find(addr[1])+len(addr[1])
         
@@ -77,27 +77,37 @@ class ServerMessageHandler():
 
     def handle_message(self, message):
         # Decode and handle message return the reply string and its destination address
-        parsed_message = self.message_parser.decode(message[0])   
+        parsed_message = self.message_parser.decode(message[0])
+        source = parsed_message["Source"]
+        
+        self.server.clientlist.add_active_client(source)
 
         if parsed_message["Type"] == "SEND" or parsed_message["Type"] == "ACK":
             # Store SEND and ACK messages
             self.message_storage.add_message(parsed_message)
+            
+            # If the recipient is inactive
+            if not self.server.clientlist.client_is_active(parsed_message["Destination"]):
+                encoded_message = self.message_parser.encode(parsed_message["Seq_No"], "REJ", parsed_message["Source"], parsed_message["Destination"], parsed_message["Payload"])
+                decoded_message = self.message_parser.decode(encoded_message)
+                self.message_storage.add_message_to_ip(decoded_message, source)
+
         elif parsed_message["Type"] == "GET":
             # Send all user's messages upon a GET request, ending with an EOM
-            source = parsed_message["Source"]
+            
             while self.message_storage.messages[source]:
                 # Loop until the server sends an EOM type message
-
+                
                 msg = self.message_storage.messages[source][0][1]
                 encoded_message = self.message_parser.encode(msg["Seq_No"], msg["Type"], msg["Source"], msg["Destination"], msg["Payload"])
-                print encoded_message
                 self.server.send_message(encoded_message, message[1])
-                print message[1]
-
                 self.message_storage.remove_message(source)
 
             EOM = self.message_parser.encode(parsed_message["Seq_No"], "EOM", source, source, "EOM")
             self.server.send_message(EOM, message[1])
+        elif parsed_message["Type"] == "LOGIN":
+            # Add client to the list of current clients
+            self.server.clientlist.add_client(source)
 
         return
             
