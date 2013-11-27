@@ -83,14 +83,16 @@ class ServerMessageHandler():
         self.server.clientlist.add_active_client(source)
 
         if parsed_message["Type"] == "SEND" or parsed_message["Type"] == "ACK":
-            # Store SEND and ACK messages
-            self.message_storage.add_message(parsed_message)
-            
-            # If the recipient is inactive
-            if not self.server.clientlist.client_is_active(parsed_message["Destination"]):
-                encoded_message = self.message_parser.encode(parsed_message["Seq_No"], "REJ", parsed_message["Source"], parsed_message["Destination"], parsed_message["Payload"])
-                decoded_message = self.message_parser.decode(encoded_message)
-                self.message_storage.add_message_to_ip(decoded_message, source)
+            # Handle SEND AND ACK
+            if self.server.clientlist.client_is_active(parsed_message["Destination"]):
+                # Store SEND and ACK messages if destination is active
+                self.message_storage.add_message(parsed_message)
+            else:
+                # If the recipient is inactive, discard ACK, and send rejected messages back to source
+                if parsed_message["Type"] != "ACK":
+                    encoded_message = self.message_parser.encode(parsed_message["Seq_No"], "REJ", parsed_message["Source"], parsed_message["Destination"], parsed_message["Payload"])
+                    decoded_message = self.message_parser.decode(encoded_message)
+                    self.message_storage.add_message_to_ip(decoded_message, source)
 
         elif parsed_message["Type"] == "GET":
             # Send all user's messages upon a GET request, ending with an EOM
