@@ -6,8 +6,12 @@ class MessageStorage():
 
     def __init__(self):
         self.messages = self.read_from_file()
-        for messagelist in self.messages.values():
-            heapq.heapify(messagelist)
+        for destination, messagelist in self.messages.items():
+            # Delete empty lists and heapify the rest
+            if messagelist:
+                heapq.heapify(messagelist)
+            else:
+                del self.messages[destination]
 
     def add_message(self, message):
         # Add a message with its destination as key
