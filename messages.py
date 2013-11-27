@@ -25,7 +25,7 @@ class MessageParser():
         seq = re.match(r'\d+',data)
         m_type = re.search(r'(GET|SEND|ACK|EOM|LOGIN|REJ)',data)
         addr = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}',data)
-        payl = data.find(addr[1])+len(addr[1])
+        payl = data.find('#')+len(addr[1])+1
         
         message["Seq_No"] =  seq.group()
         message["Type"] =  m_type.group()
@@ -112,10 +112,7 @@ class ServerMessageHandler():
         return
             
 def main():
-    test = DestinationPicker()
-    clients = test.test_avail_clients
-    destination = test.pick_destination(clients)
-    print destination
+    parser = MessageParser()
 
 if __name__ == "__main__":
     main()
