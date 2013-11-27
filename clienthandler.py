@@ -12,9 +12,9 @@ def get_ip(data):
         return "142.66.140.76"
     if data == "tuvok":
         return "142.66.140.77"
-    if data == "solo"
+    if data == "solo":
         return "142.66.140.125"
-    if data == "r2d2"
+    if data == "r2d2":
         return "142.66.140.124"
     return data
 
