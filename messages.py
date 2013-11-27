@@ -108,8 +108,9 @@ class ServerMessageHandler():
             EOM = self.message_parser.encode(parsed_message["Seq_No"], "EOM", source, source, "EOM")
             self.server.send_message(EOM, message[1])
         elif parsed_message["Type"] == "LOGIN":
-            # Add client to the list of current clients
+            # Add client to the list of current clients and message storage
             self.server.clientlist.add_client(source)
+            self.message_storage.add_client(source)
 
         return
             

@@ -26,6 +26,11 @@ class MessageStorage():
 
         self.write_to_file()
 
+    def add_client(self, ip):
+        # Add a client ip as a destination key
+        if ip not in self.messages:
+            self.messages[ip] = []
+
     def remove_message(self, destination):
         # Remove and return message for destination with lowest seq no
         message = heapq.heappop(self.messages[destination])[1]
