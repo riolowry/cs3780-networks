@@ -49,6 +49,8 @@ class ClientHandler():
         ack_list = []
         sorted_messages = sorted(message_list)
         for m in sorted_messages:
+
+            print "DEBUG: the message is: '" + m + "'."
             
             message = self.parser.decode(m)
 
@@ -70,13 +72,14 @@ class ClientHandler():
 
                 if not self.seen_message(message):
                     self.save_message_seq_no(message)
-                    print message["Source"] + ", says : " + message["Payload"]
+                    print message["Source"] + ", says: " + message["Payload"]
 
             elif message["Type"] == "ACK":
                 # message acknoledged we no longer want to resend it.
                 self.remove_from_resend_list(message)
 
             elif message["Type"] == "REJ":
+                message["Type"] = "SEND"
                 #remove rejected messages
                 self.remove_from_resend_list(message)
         
@@ -95,8 +98,10 @@ class ClientHandler():
         # Check to see if message is in _list
         check_string = message["Seq_No"] + message["Source"]
         if check_string in self.received_messages:
+            print "DEBUG: !!! we have seen message# " + message["Seq_No"] + " from " + message["Source"]
             return True
         else:
+            print "DEBUG: New message# " + message["Seq_No"] + " from " + message["Source"] + ":"
             return False
 
     def remove_from_resend_list(self, message):
@@ -107,7 +112,8 @@ class ClientHandler():
                         message["Payload"])
         # Don't resend these messages 
         if check_message in self.resend_list:
-            self.resend_list(check_message)
+            self.resend_list.remove(check_message)
+            print "DEBUG: *** message:'" + check_message + "' removed from resend list! ***"
 
     def get_request(self, source, destination):
         payload = ""
