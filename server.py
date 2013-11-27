@@ -8,11 +8,12 @@ import sys
 
 class MessageServer():
 
-    def __init__(self, message_handler):
+    def __init__(self, message_handler, clientlist):
         self.HOST = ''   # Symbolic name meaning all available interfaces
         self.PORT = 7777 # Arbitrary non-privileged port
         self.message_handler = message_handler
         self.message_handler.bind_server(self)
+        self.clientlist = clientlist
  
     def open_udp_socket(self):
         # Datagram (udp) socket
@@ -49,14 +50,20 @@ class MessageServer():
 
             if data == 'quit()':
                 print 'quitting...'
+                self.clientlist.stop_timer()
                 break
 
             # Send message to message handler
             self.message_handler.handle_message(message)
 
     def send_message(self, message, destination):
-        # Send a message to a distination
-        self.s.sendto(message, destination)
+        # Send a message to a destination
+        try:
+            self.s.sendto(message, destination)
+            print "MESSAGE SENT:      %s" % (message, )
+            print "SENT TO:      %s" % (destination, )
+        except socket.error, msg:
+            print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
 
     def close_socket(self):
         self.s.close()
