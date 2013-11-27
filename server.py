@@ -8,12 +8,10 @@ import sys
 
 class MessageServer():
 
-    def __init__(self, message_storage, message_handler, client_list):
+    def __init__(self, message_handler):
         self.HOST = ''   # Symbolic name meaning all available interfaces
         self.PORT = 7777 # Arbitrary non-privileged port
-        self.message_storage = message_storage
         self.message_handler = message_handler
-        self.client_list = client_list
         self.message_handler.bind_server(self)
  
     def open_udp_socket(self):
@@ -43,6 +41,8 @@ class MessageServer():
 
             data = message[0]
             addr = message[1]
+
+            print message[0]
          
             if not data: 
                 break
@@ -52,21 +52,12 @@ class MessageServer():
                 break
 
             # Send message to message handler
-            reply,destination = self.message_handler.handle_message(message)
-         
-            print reply
-            print destination
-            print self.client_list.clients
+            self.message_handler.handle_message(message)
 
-            # Send a reply if necessary
-            if reply and destination:
-                self.s.sendto(reply,destination)
+    def send_message(self, message, destination):
+        # Send a message to a distination
+        self.s.sendto(message, destination)
 
-            self.parse_message(message[0])
-
-    def parse_message(self, message):
-        print "TODO ... The data is: " + message
-     
     def close_socket(self):
         self.s.close()
 

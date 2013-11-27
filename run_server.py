@@ -6,10 +6,9 @@ from messages import MessageParser, ServerMessageHandler
 def main():
     storage = MessageStorage()
     parser = MessageParser()
-    message_handler = ServerMessageHandler(parser)
-    client_list = ClientList()
-   
-    myserver = MessageServer(storage, message_handler, client_list)
+    message_handler = ServerMessageHandler(parser, storage)
+
+    myserver = MessageServer(message_handler)
     myserver.open_udp_socket()
     myserver.bind_socket()
     myserver.listen()
