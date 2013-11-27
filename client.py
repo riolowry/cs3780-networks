@@ -8,12 +8,14 @@ import sys  #for exit
 import thread
 
 from messages import MessageParser, DestinationPicker
-from clienthandler import ClientHandler
+from clienthandler import *
+
 
 class MessageClient():
     
     def __init__(self):
         self.server = raw_input('Enter server IPaddress: ')
+        self.server = get_ip(self.server)         
         self.host = 'localhost';
         self.port = 7777;
         self.parser = MessageParser()
@@ -35,38 +37,39 @@ class MessageClient():
             sys.exit()
  
     def send_messages(self):
-        while(1) :
-            #client_list = DestinationPicker()
-            #destination = client_list.pick_destination(client_list.test_avail_clients)
+        #while(1) :
+        #    #client_list = DestinationPicker()
+        #    #destination = client_list.pick_destination(client_list.test_avail_clients)
             
-            source = self.ipaddr
-            msg = self.handler.get_message(source)
-            try :
-                #Set the whole string
-                self.s.sendto(msg, (self.server, self.port))
+        source = self.ipaddr
+        #    #self.get_messages()
+        msg = self.handler.get_message(source)
+        try :
+            #    #Set the whole string
+            self.s.sendto(msg, (self.server, self.port))
              
-                #if payload == 'quit()':
-                #    self.s.sendto(payload, (self.host, self.port))
-                #    print 'quitting...'
-                #    break
+            #    #if payload == 'quit()':
+            #    #    self.s.sendto(payload, (self.host, self.port))
+            #    #    print 'quitting...'
+            #    #    break
 
-                # receive data from client (data, addr)
-                #d = self.s.recvfrom(1024)
-                #reply = d[0]
-                #addr = d[1]
+            #   # receive data from client (data, addr)
+            #    #d = self.s.recvfrom(1024)
+            #    #reply = d[0]
+            #    #addr = d[1]
 
-                #get the payload
-                #response = self.parser.decode(reply)
+            #    #get the payload
+            #    #response = self.parser.decode(reply)
 
-                #print 'Server reply : ' + reply
-                #print 'Response: ' + response["Payload"]
+            #   #print 'Server reply : ' + reply
+            #    #print 'Response: ' + response["Payload"]
             
      
-            except socket.error, msg:
-                print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
-                sys.exit()
+        except socket.error, msg:
+            print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            sys.exit()
 
-    def get_messages():
+    def get_messages(self):
         # for sending GET requests to the server
         source = self.ipaddr
         destination = self.server
@@ -82,13 +85,32 @@ class MessageClient():
                 message_list.append(data)
                 parsed_data = self.parser.decode(data)
                 if parsed_data["Type"] == "EOM":
+                    print "EOM recieved"
                     break
+
+            ack_list, resend_list = self.handler.parse(message_list)
+
+            for msg in ack_list:
+                seq = msg["Seq_No"]
+                mtype = msg["Type"]
+                source = msg["Source"]
+                dest = msg["Destination"]
+                payl = msg["Payload"]
+                send_msg = self.parser.encode(seq,
+                        mtype,
+                        source,
+                        dest,
+                        payl)
+                try:
+                    self.s.sendto(send_msg, (self.server, self.port))
+                except:
+                    continue
 
         except socket.error, message:
             print 'Error Code : ' + str(message[0]) + ' Message ' + message[1]
 
     def login(self):
-        username = raw_input('Enter your username: ')
+        username = "login from " + str(self.ipaddr) #raw_input('Enter your username: ')
         msg = self.parser.encode("001","LOGIN",str(self.server),"0.0.0.0",username)
         try :
             self.s.sendto(msg, (self.server, self.port))
@@ -101,7 +123,14 @@ def main():
     client = MessageClient()
     client.create_udp_socket()
     client.login()
-    client.send_messages()
+    while(1):
+        cmd = raw_input('"GET", "SEND", or "Quit" ? ')
+        if cmd == "SEND":
+            client.send_messages()
+        elif cmd == "GET":
+            client.get_messages()
+        elif cmd == "Quit":
+            break
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,15 @@
 
 from messages import MessageParser
 
+def get_ip(data):
+    if data == "padme":
+        return "142.66.140.119"
+    if data == "dax":
+        return "142.66.140.76"
+    if data == "tuvok":
+        return "142.66.140.77"
+    return data
+
 class ClientHandler():
 
     def __init__(self):
@@ -18,6 +27,7 @@ class ClientHandler():
     def get_message(self, source):
         payload = raw_input('Enter message to send : ')
         destination = raw_input('Enter destination IP : ')
+        destination = get_ip(destination)
         message_data = self.parser.encode(self.increment_seq_no(0),"SEND",source, destination, payload)
         self.resend_list.append(message_data)
         return message_data
@@ -36,7 +46,7 @@ class ClientHandler():
         sorted_messages = sorted(message_list)
         for m in sorted_messages:
             
-            message = parser.decode(m)
+            message = self.parser.decode(m)
 
             if message["Type"] == "SEND":
                 
@@ -47,10 +57,14 @@ class ClientHandler():
                 ack_message["Source"] = message["Destination"] 
                 ack_message["Destination"] = message["Source"]
                 ack_message["Payload"] = ""
-                send_ack = parser.encode(ack_message)
+                send_ack = self.parser.encode(ack_message["Seq_No"],
+                        ack_message["Type"],
+                        ack_message["Source"],
+                        ack_message["Destination"],
+                        ack_message["Payload"])
                 ack_list.append(send_ack)
 
-                if not seen_message(message):
+                if not self.seen_message(message):
                     self.save_message_seq_no(message)
                     print message["Source"] + ", says : " + message["Payload"]
 
@@ -67,8 +81,8 @@ class ClientHandler():
     def save_message_seq_no(self, message):
         
         # message is a dictionary, saves the sequence number
-        save_string = message["Seq_no"] + message["Source"]
-        self.received_messages.append(save_string)
+        save_string = message["Seq_No"] + message["Source"]
+        self.received_messages[save_string] = True
         return True
 
 
@@ -82,12 +96,16 @@ class ClientHandler():
             return False
 
     def remove_from_resend_list(self, message):
-        check_message = self.parser.encode(message)
+        check_message = self.parser.encode(message["Seq_No"],
+                        message["Type"],
+                        message["Source"],
+                        message["Destination"],
+                        message["Payload"])
         # Don't resend these messages 
         if check_message in self.resend_list:
             self.resend_list(check_message)
 
     def get_request(self, source, destination):
         payload = ""
-        message_data = self.parser.encode(increment_seq_no(1),"GET",source, destination, payload)
-        return message
+        message_data = self.parser.encode(self.increment_seq_no(1),"GET",source, destination, payload)
+        return message_data
