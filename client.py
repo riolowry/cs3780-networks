@@ -13,7 +13,7 @@ from clienthandler import ClientHandler
 class MessageClient():
     
     def __init__(self):
-        self.server = "111.111.111.000"
+        self.server = raw_input('Enter server IPaddress: ')
         self.host = 'localhost';
         self.port = 7777;
         self.parser = MessageParser()
@@ -43,7 +43,7 @@ class MessageClient():
             msg = self.handler.get_message(source)
             try :
                 #Set the whole string
-                self.s.sendto(msg, (self.host, self.port))
+                self.s.sendto(msg, (self.server, self.port))
              
                 #if payload == 'quit()':
                 #    self.s.sendto(payload, (self.host, self.port))
@@ -51,15 +51,15 @@ class MessageClient():
                 #    break
 
                 # receive data from client (data, addr)
-                d = self.s.recvfrom(1024)
-                reply = d[0]
-                addr = d[1]
+                #d = self.s.recvfrom(1024)
+                #reply = d[0]
+                #addr = d[1]
 
                 #get the payload
-                response = self.parser.decode(reply)
+                #response = self.parser.decode(reply)
 
-                print 'Server reply : ' + reply
-                print 'Response: ' + response["Payload"]
+                #print 'Server reply : ' + reply
+                #print 'Response: ' + response["Payload"]
             
      
             except socket.error, msg:
@@ -72,7 +72,7 @@ class MessageClient():
         destination = self.server
         message = self.handler.get_request(source, destination)
         try:
-            self.s.sendto(message, (self.host, self.port))
+            self.s.sendto(message, (self.server, self.port))
             message_list = []
             while(1):
                 rec_msg = self.s.recvfrom(1024)
@@ -88,31 +88,14 @@ class MessageClient():
             print 'Error Code : ' + str(message[0]) + ' Message ' + message[1]
 
     def login(self):
-        while(1) :
-            username = raw_input('Enter your username: ')
-            testip = raw_input('Enter your ip (test): ')
-            msg = self.parser.encode("001","LOGIN",testip,"0.0.0.0",username)
-            try :
-                # Set the whole string
-                self.s.sendto(msg, (self.host, self.port))
-
-                # receive data from server (data, addr)
-                d = self.s.recvfrom(1024)
-                reply = d[0]
-                addr = d[1]
-
-                #get the payload
-                response = self.parser.decode(reply)
-
-                print 'Server reply : ' + reply
-                print 'Response: ' + response["Payload"]
-
-                if "successful" in response["Payload"]:
-                    break
+        username = raw_input('Enter your username: ')
+        msg = self.parser.encode("001","LOGIN",str(self.server),"0.0.0.0",username)
+        try :
+            self.s.sendto(msg, (self.server, self.port))
      
-            except socket.error, msg:
-                print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
-                sys.exit()
+        except socket.error, msg:
+            print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            sys.exit()
 
 def main():
     client = MessageClient()
