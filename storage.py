@@ -29,6 +29,9 @@ class MessageStorage():
     def remove_message(self, destination):
         # Remove and return message for destination with lowest seq no
         message = heapq.heappop(self.messages[destination])[1]
+            
+        self.write_to_file()
+
         return message
 
     def write_to_file(self):
