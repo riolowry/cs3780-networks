@@ -66,6 +66,7 @@ class ClientList():
         self.active_clients = []
         self.clients = []
         self.timer = threading.Timer(600.0, self.reset_clients)
+        self.timer.daemon = True
         self.timer.start()
 
     def add_client(self, ip):
@@ -88,6 +89,7 @@ class ClientList():
         self.active_clients = []
         print "CLIENTS RESET. Active clients: %s" % (self.clients, )
         self.timer = threading.Timer(600.0, self.reset_clients)
+        self.timer.daemon = True
         self.timer.start()
 
     def stop_timer(self):
