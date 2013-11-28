@@ -91,16 +91,12 @@ class MessageClient():
             ack_list, resend_list = self.handler.parse(message_list)
 
             for msg in ack_list:
-                '''seq = msg["Seq_No"]
-                mtype = msg["Type"]
-                source = msg["Source"]
-                dest = msg["Destination"]
-                payl = msg["Payload"]
-                send_msg = self.parser.encode(seq,
-                        mtype,
-                        source,
-                        dest,
-                        payl)'''
+                try:
+                    self.s.sendto(msg, (self.server, self.port))
+                except:
+                    continue
+
+            for msg in resend_list:
                 try:
                     self.s.sendto(msg, (self.server, self.port))
                 except:
@@ -118,6 +114,16 @@ class MessageClient():
         except socket.error, msg:
             print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
             sys.exit()
+    
+    def kill_server(self):
+        msg = ""
+        try :
+            self.s.sendto(msg, (self.server, self.port))
+     
+        except socket.error, msg:
+            print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            sys.exit()
+
 
 def main():
     client = MessageClient()
@@ -131,6 +137,9 @@ def main():
             client.get_messages()
         elif cmd == "Quit":
             break
+        elif cmd == "QuitServer":
+            client.kill_server()
+
 
 if __name__ == "__main__":
     main()
