@@ -45,11 +45,7 @@ class MessageServer():
 
             print message[0]
          
-            if not data: 
-                break
-
-            if data == 'quit()':
-                print 'quitting...'
+            if not data:
                 self.clientlist.stop_timer()
                 break
 
@@ -61,7 +57,7 @@ class MessageServer():
         try:
             self.s.sendto(message, destination)
             print "MESSAGE SENT:      %s" % (message, )
-            print "SENT TO:      %s" % (destination, )
+            print "SENT TO:           %s" % (destination, )
         except socket.error, msg:
             print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
 
