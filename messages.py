@@ -98,13 +98,14 @@ class ServerMessageHandler():
         elif parsed_message["Type"] == "GET":
             # Send all user's messages upon a GET request, ending with an EOM
             
-            while self.message_storage.messages[source]:
-                # Loop until the server sends an EOM type message
-                
-                msg = self.message_storage.messages[source][0][1]
-                encoded_message = self.message_parser.encode(msg["Seq_No"], msg["Type"], msg["Source"], msg["Destination"], msg["Payload"])
-                self.server.send_message(encoded_message, message[1])
-                self.message_storage.remove_message(source)
+            if source in self.messages_storage.messages:
+                while self.message_storage.messages[source]:
+                    # Loop until the server sends an EOM type message
+                    
+                    msg = self.message_storage.messages[source][0][1]
+                    encoded_message = self.message_parser.encode(msg["Seq_No"], msg["Type"], msg["Source"], msg["Destination"], msg["Payload"])
+                    self.server.send_message(encoded_message, message[1])
+                    self.message_storage.remove_message(source)
 
             EOM = self.message_parser.encode(parsed_message["Seq_No"], "EOM", source, source, "EOM")
             self.server.send_message(EOM, message[1])
