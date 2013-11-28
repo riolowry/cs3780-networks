@@ -77,6 +77,7 @@ class ServerMessageHandler():
 
     def handle_message(self, message):
         # Decode and handle message return the reply string and its destination address
+        print self.message_storage.messages
         parsed_message = self.message_parser.decode(message[0])
         source = parsed_message["Source"]
         

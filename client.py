@@ -107,7 +107,7 @@ class MessageClient():
 
     def login(self):
         username = "login from " + str(self.ipaddr) #raw_input('Enter your username: ')
-        msg = self.parser.encode("001","LOGIN",str(self.server),"0.0.0.0",username)
+        msg = self.parser.encode("001","LOGIN",str(self.ipaddr),str(self.server),username)
         try :
             self.s.sendto(msg, (self.server, self.port))
      
