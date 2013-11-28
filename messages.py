@@ -98,7 +98,7 @@ class ServerMessageHandler():
         elif parsed_message["Type"] == "GET":
             # Send all user's messages upon a GET request, ending with an EOM
             
-            if source in self.messages_storage.messages:
+            if source in self.message_storage.messages:
                 while self.message_storage.messages[source]:
                     # Loop until the server sends an EOM type message
                     

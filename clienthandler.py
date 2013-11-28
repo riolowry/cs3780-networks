@@ -107,6 +107,8 @@ class ClientHandler():
             return False
 
     def remove_from_resend_list(self, message):
+
+        #be able to remove ACK based on Seq No only
         check_message = self.parser.encode(message["Seq_No"],
                         message["Type"],
                         message["Source"],
