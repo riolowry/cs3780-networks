@@ -90,6 +90,10 @@ class ClientHandler():
 
             elif message["Type"] == "REJ":
                 message["Type"] = "SEND"
+                #reverse destination and source order since server only echoes the message
+                destination = message["Destination"]
+                message["Destination"] = message["Source"]
+                message["Source"] = destination
                 #remove rejected messages
                 self.remove_from_resend_list(message)
         
@@ -116,8 +120,9 @@ class ClientHandler():
 
     def remove_from_resend_list(self, message):
 
-        #be able to remove ACK based on Seq No only
-        key = message["Seq_No"] + message["Destination"]
+        #be able to remove message based on Seq No and IP only
+        #key = message["Seq_No"] + message["Destination"]
+        key = message["Seq_No"] + message["Source"]
         '''check_message = self.parser.encode(message["Seq_No"],
                         message["Type"],
                         message["Source"],
