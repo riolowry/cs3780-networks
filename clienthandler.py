@@ -6,6 +6,7 @@
 from messages import MessageParser
 
 def get_ip(data):
+    """simple helper function, translates IP addresses for a few lab machines"""
     if data == "padme":
         return "142.66.140.119"
     if data == "dax":
@@ -35,6 +36,7 @@ class ClientHandler():
         # need a window start and end for sendlist, can't send unless window has room
 
     def get_message(self, source):
+        """queries user and creates new SEND message"""
         payload = raw_input('Enter message to send : ')
         destination = raw_input('Enter destination IP : ')
         destination = get_ip(destination)
@@ -42,11 +44,12 @@ class ClientHandler():
         message_data = self.parser.encode(seq_no,"SEND",source, destination, payload)
         key = str(seq_no) + str(destination)
         self.resend_list[key] = message_data
-        print "DEBUG: resend list:"
-        print "RESEND_LIST:" + str(self.resend_list)
+        #print "DEBUG: resend list:"
+        #print "RESEND_LIST:" + str(self.resend_list)
         return message_data
 
     def increment_seq_no(self, type):
+        """handles counter incrementation"""
         if type == 0:
             seq_no = self.sequence_no
             self.sequence_no = (self.sequence_no + 1) % 1000
@@ -56,11 +59,12 @@ class ClientHandler():
         return seq_no
 
     def parse(self, message_list):
+        """Parses and ACKs mesages, prints new messages and removed ACKed or REJected messages"""
         ack_list = []
         sorted_messages = sorted(message_list)
         for m in sorted_messages:
 
-            print "DEBUG: the message is: '" + m + "'."
+            #print "DEBUG: the message is: '" + m + "'."
             
             message = self.parser.decode(m)
 
@@ -100,7 +104,7 @@ class ClientHandler():
         return ack_list, self.resend_list
 
     def save_message_seq_no(self, message):
-        
+        """stores the sequence number and source of messages we have seen"""
         # message is a dictionary, saves the sequence number
         save_string = message["Seq_No"] + message["Source"]
         self.received_messages[save_string] = True
@@ -108,18 +112,18 @@ class ClientHandler():
 
 
     def seen_message(self, message):
-        
-        # Check to see if message is in _list
+        """Does a quick check to see if this is a new or old message"""
+        # Check to see if message is in recieved messages list
         check_string = message["Seq_No"] + message["Source"]
         if check_string in self.received_messages:
-            print "DEBUG: !!! we have seen message# " + message["Seq_No"] + " from " + message["Source"]
+            #print "DEBUG: !!! we have seen message# " + message["Seq_No"] + " from " + message["Source"]
             return True
         else:
-            print "DEBUG: New message# " + message["Seq_No"] + " from " + message["Source"] + ":"
+            #print "DEBUG: New message# " + message["Seq_No"] + " from " + message["Source"] + ":"
             return False
 
     def remove_from_resend_list(self, message):
-
+        """removes messages from the resend list when they are ACKed or REJected"""
         #be able to remove message based on Seq No and IP only
         #key = message["Seq_No"] + message["Destination"]
         key = message["Seq_No"] + message["Source"]
@@ -130,16 +134,17 @@ class ClientHandler():
                         message["Payload"])'''
         # Don't resend these messages 
         try:
-            print "DEBUG:resend list, before remove:"
-            print "DEBUG: " + str(self.resend_list)
+            #print "DEBUG:resend list, before remove:"
+            #print "DEBUG: " + str(self.resend_list)
             del self.resend_list[key]
-            print "DEBUG:resend list, after remove:"
-            print "DEBUG: " + str(self.resend_list)
-            #print "DEBUG: *** message:'" + key + "' removed from resend list! ***"
+            #print "DEBUG:resend list, after remove:"
+            #print "DEBUG: " + str(self.resend_list)
+            ##print "DEBUG: *** message:'" + key + "' removed from resend list! ***"
         except KeyError:
             print key + " is not in resend list"
 
     def get_request(self, source, destination):
+        """creates a GET request and returns the message string"""
         payload = ""
         message_data = self.parser.encode(self.increment_seq_no(1),"GET",source, destination, payload)
         return message_data

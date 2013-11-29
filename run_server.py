@@ -1,3 +1,8 @@
+'''
+    3780 Networking Project server
+    @author Rio Lowry, Lezar de Guzmann 
+'''
+
 from server import MessageServer
 from storage import MessageStorage, ClientList
 from messages import MessageParser, ServerMessageHandler

@@ -1,3 +1,8 @@
+'''
+    3780 Networking Project server
+    @author Rio Lowry, Lezar de Guzmann 
+'''
+ 
 import json
 import heapq
 import threading

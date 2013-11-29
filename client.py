@@ -1,6 +1,6 @@
 '''
     3780 Networking Project
-    Rio Lowry
+    @author: Rio Lowry, Lezar de Guzman
 '''
  
 import socket   #for sockets

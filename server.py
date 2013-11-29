@@ -1,6 +1,6 @@
 '''
     3780 Networking Project server
-    Rio Lowry 
+    @author Rio Lowry, Lezar de Guzmann 
 '''
  
 import socket

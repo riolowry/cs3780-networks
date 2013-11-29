@@ -1,6 +1,6 @@
 '''
-    3780 Networking Project message parser
-    Rio Lowry 
+    3780 Networking Project server
+    @author Rio Lowry, Lezar de Guzmann 
 '''
 
 import re
