@@ -4,6 +4,7 @@
 '''
 
 from messages import MessageParser
+import re
 
 def get_ip(data):
     """simple helper function, translates IP addresses for a few lab machines"""
@@ -38,8 +39,15 @@ class ClientHandler():
     def get_message(self, source):
         """queries user and creates new SEND message"""
         payload = raw_input('Enter message to send : ')
-        destination = raw_input('Enter destination IP : ')
-        destination = get_ip(destination)
+        while 1:
+            destination = raw_input('Enter destination IP : ')
+            destination = get_ip(destination)
+            check = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+            valid = re.match(check, destination)
+            if not valid:
+                print "Ill-formed IP address. Please re-enter."
+            else:
+                break
         seq_no = self.increment_seq_no(0)
         message_data = self.parser.encode(seq_no,"SEND",source, destination, payload)
         key = str(seq_no) + str(destination)
