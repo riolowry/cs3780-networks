@@ -98,7 +98,7 @@ class MessageClient():
 
             for msg in resend_list:
                 try:
-                    self.s.sendto(msg, (self.server, self.port))
+                    self.s.sendto(resend_list[msg], (self.server, self.port))
                 except:
                     continue
 
