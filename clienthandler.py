@@ -27,7 +27,7 @@ class ClientHandler():
     def __init__(self):
         self.parser = MessageParser()
         self.received_messages = {}
-        self.resend_list = []
+        self.resend_list = {}
         self.sequence_no = 0
         self.get_seq_no = 0
         # need a window start and end for sendlist, can't send unless window has room
@@ -36,8 +36,12 @@ class ClientHandler():
         payload = raw_input('Enter message to send : ')
         destination = raw_input('Enter destination IP : ')
         destination = get_ip(destination)
-        message_data = self.parser.encode(self.increment_seq_no(0),"SEND",source, destination, payload)
-        self.resend_list.append(message_data)
+        seq_no = self.increment_seq_no(0)
+        message_data = self.parser.encode(seq_no,"SEND",source, destination, payload)
+        key = str(seq_no) + str(destination)
+        self.resend_list[key] = message_data
+        print "DEBUG: resend list:"
+        print "RESEND_LIST:" + str(self.resend_list)
         return message_data
 
     def increment_seq_no(self, type):
@@ -111,15 +115,22 @@ class ClientHandler():
     def remove_from_resend_list(self, message):
 
         #be able to remove ACK based on Seq No only
-        check_message = self.parser.encode(message["Seq_No"],
+        key = message["Seq_No"] + message["Destination"]
+        '''check_message = self.parser.encode(message["Seq_No"],
                         message["Type"],
                         message["Source"],
                         message["Destination"],
-                        message["Payload"])
+                        message["Payload"])'''
         # Don't resend these messages 
-        if check_message in self.resend_list:
-            self.resend_list.remove(check_message)
-            print "DEBUG: *** message:'" + check_message + "' removed from resend list! ***"
+        try:
+            print "DEBUG:resend list, before remove:"
+            print "DEBUG: " + str(self.resend_list)
+            del self.resend_list[key]
+            print "DEBUG:resend list, after remove:"
+            print "DEBUG: " + str(self.resend_list)
+            #print "DEBUG: *** message:'" + key + "' removed from resend list! ***"
+        except KeyError:
+            print key + " is not in resend list"
 
     def get_request(self, source, destination):
         payload = ""
