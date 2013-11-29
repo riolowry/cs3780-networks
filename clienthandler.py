@@ -20,6 +20,8 @@ def get_ip(data):
         return "142.66.140.123"
     if data == "vader":
         return "142.66.56.232"
+    if data == "orator":
+        return "142.66.56.95"
     return data
 
 class ClientHandler():
